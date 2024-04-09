@@ -1,22 +1,20 @@
-b1a3a98b-9a5b-ab66-37d9-5688dc70a1fa | <0,0,0> | Izzy Huge
-bd8d2739-d7b6-898a-1d63-6ee4ff647042 | <0,0,0> | Izzy Tall
+b1a3a98b-9a5b-ab66-37d9-5688dc70a1fa | <.2,0,.5> | Izzy Huge
+bd8d2739-d7b6-898a-1d63-6ee4ff647042 | <0,0,.6> | Izzy Tall
 
-5e5f0278-e84a-bd6f-89e4-1b5994939a4a | <0,0,0> | glados9000 tall pony
-74bf8eaa-d586-314a-107f-14c79f3f15c0 | <0,0,0> | glados9000 slightly taller
-5707420f-eee9-9476-60fc-6e9026ed4345 | <0,0,0> | glados9000 taller no neck
+5e5f0278-e84a-bd6f-89e4-1b5994939a4a | <0,0,.25> | glados9000 tall pony
+74bf8eaa-d586-314a-107f-14c79f3f15c0 | <0,0,.2> | glados9000 slightly taller
+5707420f-eee9-9476-60fc-6e9026ed4345 | <0,0,.2> | glados9000 taller no neck
 
-5e5f0278-e84a-bd6f-89e4-1b5994939a4a | <0,0,0> | glados9000 tall pony
+6d3c6600-2b0f-56df-9ec4-7d2844c8e85d | <.12,0,-.4> | stock flat ground sit/sit tail flop
+1d565c61-bf41-9d08-b226-92fca971860f | <.3,0,-.7> | stock flat on back sit
 
-6d3c6600-2b0f-56df-9ec4-7d2844c8e85d | <0,0,0> | stock flat ground sit/sit tail flop
-1d565c61-bf41-9d08-b226-92fca971860f | <0,0,0> | stock flat on back sit
+274bca44-d61b-e0e8-8ca2-59c1a25284d1 | <-.2,0,.25> | standing deformer
 
-274bca44-d61b-e0e8-8ca2-59c1a25284d1 | <0,0,0> | standing deformer
+0af430c2-2b8d-06d9-5709-b84d92e72910 | <0,0,.25> | supertall giraffe neck deformer
 
-0af430c2-2b8d-06d9-5709-b84d92e72910 | <0,0,0> | supertall giraffe neck deforemr
+11f2701c-3db2-b752-d243-24fe0912d515 | <0,0,.18> | Long Neck Long Torso giraffe neck atyid
+8767491a-ebe3-f98d-f341-a0bb7f727dba | <0,0,.18> | Long Neck Short Torso giraffe neck atyid
+923c8147-6faa-5b76-75f5-3713b9fd0ccb | <0,0,.13> | Short Neck Long Torso giraffe neck atyid
+30d38c73-56f2-3f17-e694-38594d64b7cb | <0,0,.13> | Short Neck Short Torso giraffe atyid
 
-11f2701c-3db2-b752-d243-24fe0912d515 | <0,0,0> | Long Neck Long Torso giraffe neck atyid
-8767491a-ebe3-f98d-f341-a0bb7f727dba | <0,0,0> | Long Neck Short Torso giraffe neck atyid
-923c8147-6faa-5b76-75f5-3713b9fd0ccb | <0,0,0> | Short Neck Long Torso giraffe neck atyid
-30d38c73-56f2-3f17-e694-38594d64b7cb | <0,0,0> | Short Neck Short Torso giraffe atyid
-
-a6212f4d-f708-297f-dd30-88dddf5526c7 | <0,0,0> | breeze tpose_ant
+a6212f4d-f708-297f-dd30-88dddf5526c7 | <-.18,0,-.5> | breeze tpose_ant
