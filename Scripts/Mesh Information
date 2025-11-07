@@ -1,0 +1,20 @@
+Mesh creation and rigging
+
+If you're wanting to make a skin tight mesh, just duplicate the skin. (Should also automatically fit the stallion. Use gret(mentioned above) to apply a modifier on a mesh with shapekeys)
+
+Otherwise if you're making your own mesh, 
+*Create your mesh
+*Use the Data Transfer modifier with Vertex Groups selected, exactly which setting of it to use can vary. (Nearest Face Interpolated seems to do well)
+*Generate data layers, apply it, then remove unused vertex groups. (May require an addon)
+*Edit weights afterwards in order to smooth it out during bends (Some bone groups are named in capitals, like HEAD, PELVIS, and so on. These are fitted bones and is intentional.) 
+*Saving a backup is recommended.
+*In order to setup a stallion, create a shape key(name it basis)
+*Create another shapekey(name it stallion).
+*Select the shapekey, and make sure you enter edit mode under that shape key
+*Move around the mesh with proportional editing on to fit around the stallion.
+
+This will let you create the mesh to fit both the stallion and mare, as well as work with shape sliders like body fat. 
+
+You will still most likely need to double check the weight painting to make sure its smooth.
+
+You will only have to do the weight painting process once in total.(shapekeys will preserve weight painting)
