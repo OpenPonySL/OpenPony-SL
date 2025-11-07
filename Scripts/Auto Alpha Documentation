@@ -1,0 +1,25 @@
+Auto alpha commands for clothing alphas.
+You can also just use the script inside the extras kit and the alpha HUD's export while both are attached as well.
+
+updatealpha 
+Send a regionsayto owner on channel 20 to trigger an update of alphas
+
+addalpha|lk(n)*face*face*lk(n)*face
+
+(n) represents what link to effect, and face for which face to effect, supports multiple entries in a row. Duplicate numbers may act funny
+
+Putting -1 in face, sets it to ALL_SIDES
+
+ex addalpha|lk4*1*2*lk1*-1
+
+This will hide face 1 and 2 on link 1 (01torsoupper) AND
+all sides of link 7 ()
+ 
+it will also repeat the command to the owner on channel 20. This is for addons or other things that want to use it. Has a built in delay of 0.08s per face. 
+
+Formats as alpha|linkdesc|face|0
+(basically nobody uses it but it exists)
+
+The body keeps tracks of each face effected, and what attachments are associated with it, so running an update just checks if that attachment still exists
+
+p.s in hindsight using bitwise to determine which face might've been ideal for this 11010000 or 208 would have been face 1,2, and 4 
