@@ -1,0 +1,7 @@
+https://github.com/greisane/gret
+adds grafting, apply modifier with shapekeys, and misc tools.
+https://github.com/fedackb/yavne
+edit the normals/shading, when in doubt, update vertex normals, apply corner angles, then merge to smooth seams/seperate objects. Avastar may do this on export if weld edge normals exist, but provides less control.
+
+https://github.com/SavMartin/TexTools-Blender
+adds tools to help with creation of UVs 
