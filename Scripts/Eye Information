@@ -1,0 +1,13 @@
+The eyes have 6 layers, 5 layers editable by the customization head, leaving the 6th have the ability to work with expressions or other scripts.
+layer 1,3,5 use alpha masking at 180
+layer 2,4 use alpha blending
+this is to hopefully discourage mixed alpha layering
+
+Use 
+left
+texture|16pupils2|0|type|uuid|color♦gloss♦env|scale|alpha
+
+right
+texture|16pupils2|1|type|uuid|color♦gloss♦env|scale|alpha
+
+to control those layers 
