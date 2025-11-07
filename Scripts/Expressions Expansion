@@ -1,0 +1,79 @@
+_____________________________________________________
+
+Combo button for the Expression HUD formatting
+
+New feature/button command, combo.
+Play multiple animations at once, temporarily stopping layers.
+Could be used to combine dances + facial expressions to be one button instead of multiple.
+Can play/stop as many animations as you can list
+
+Format:
+combo-anim1,anim2-layer1,layer2|TextureUUID
+
+Plays anim1 and anim2, stops layer1 and layer2, but will replay after the button is toggled off.
+
+
+Example
+combo-littledance,NA_EARsideishL,na_eyeslightlysadL-face,emote|ceb72398-8dbb-7565-b3c0-d9461ee20c2e
+
+
+
+_____________________________________________________
+ 
+Reactive Gestures
+
+An expansion on the sneeze to turn into a whole system with appliers/customization.
+
+A new applier is added to the devkit/extras box
+
+First time after you update/get a new pony, you will get a dialog to opt in or not, this can be toggled with a chat command later
+
+*'/-19 Yes to that!' to enable
+*'/-19 Not at all' to disable
+A use case would be you get slapped, then you ragdoll/explode violently/returning a hug, without the need to press anything on your end.
+
+It is possible to use prims, get by a hit car, then do a family guy death pose
+
+Format:
+
+trigger|anim1,anim2|sound1*vol*delay,sound2*vol*delay|range|mindelay|randomdelay|direction|chance|namecheck
+
+
+trigger - represents the command that starts it
+anim1/2 - Picks one of the animations to play randomly
+sound1*delay*volume - Pick one of the random sounds to play with a certain delay and volume
+range - Max distance someone needs to be to cause a reaction
+mindelay - Minimum time before reaction occcurs
+randomdelay - Additional time added to delay (randomized)
+direction - Required direction of trigger, F for only punching forward (any,F,B,L,R combinations of FL/BR)
+echochance - Chance to repeat/spread out of 100.0
+check - If one of the attached items has part of this name, do not trigger
+
+Example:
+
+trig:sneeze|anim:ohno|snd:sneezing*1.0*0.1|range:15.0|delay:7|rand:32|dir:any|chance:12.0|check:mask
+
+Anyone that has a name pattern with 'mask' will not trigger this reaction
+
+Animation Format:
+nameofanim_directiontouse
+
+If direction is not defined, it will simple just play matching animation name/become the fallback
+If no direction is valid and there is no fallback, it will do nothing
+
+May have trouble with looping animations
+
+Example:
+anim1_F for the front
+anim1_BR for back right
+anim1_R for right (can also become FR/BR if those don't exist already)
+
+To make a reaction pill
+
+1) Unpack Reaction Applier from the devkit/extras
+2) Create/Pick an (non-looping) animation, sound, and notecard to use
+3) Setup notecard following format mentioned (make sure to not have multiple rangemult fields)
+4) Put items into the applier (may need to rez if not fullperm)
+5) Name the applier
+6) Pickup/Use the applier
+7) Create a gesture using your trigger keyword or alternative system (channel /-19)
