@@ -1,0 +1,18 @@
+Bone translation controls if the bones will be locked location wise or be free, aka pressing g on a random bone to move it.
+
+When you do a 360 animation, in order to copy the first and last keyframe, you will have to multiply the quaternion by -1 in all 4 fields, or create double the animation, spinning in the same direction
+this is due to how quaternions are, multiple ways to get to the same rotation
+
+Cell shade toggles the cell shade
+IK Pole Parenting toggles the IK Poles following the IK controllers
+
+Gender for Gender
+
+Head IK controls how far down the chickenhead IK controls, from pelvis+spine, to neck only, to none.
+
+IK Parent to origin controls if the IK targets are parented to the "Origin" bone, be advised as avastar doesn't upload keyframes for this bone, and is only used to help preview motion/speed.
+
+IK/FK  controls if the IK is active for the legs. Turning it off will let you just rotate bones instead
+
+IKs in the horse are limited, for example the shoulders when you start rotating the horse or moving it far from the rest pose.
+You can control this by moving the Shoulder IK arrow. Keep in mind that it is part of the armature, and can be keyframed. 
