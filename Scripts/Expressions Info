@@ -1,0 +1,86 @@
+Expression HUD
+
+*right click edit, 
+*drag your animation in
+*edit linked
+*select the button you want to use, 
+*drag a texture on, 
+*change description of that same link  in this format
+layer-yournamehere
+
+or 
+layer-duration-yournamehere
+
+if you use the latter, it will automatically remove that animation from the active layer list.
+For example
+emote-0.8-poke
+
+
+or
+
+layer-duration-yournamehere-sound
+
+where as this will play a sound. 
+For example
+
+face-0-sneeze-sneezesound
+
+Will play an animation intended to loop , and a sound, (nonlooping sound)
+
+face-0.5-sneeze-sneezesound
+
+Will play an animation, remove it from memory after about 0.5 seconds(Animation will continue to play), and then a sound, (nonlooping sound)
+
+
+For example, you want to your wings to have a real fancy fluff, before moving into a static pose. This allows transition animations without causing too many issues.
+Wings are used in this case, with the exception of the folded state
+
+
+Will remove the animation after about 0.8 seconds, this does not stop the animation that is playing, only the memory of it in the script existing
+
+
+
+EDIT:
+New format
+layer-sync-looping-nonlooping-sound
+
+
+nonlooping stands for the starting, not looping, animation, 1 priority higher than the looping animation to play ontop of the looping one.
+looping stands for the looping animation, 1 priority lower than nonlooping
+
+Ordering of the two animations matter.
+Looping animation must be 1 priority lower.
+Bad formatting can mean you have animations constantly playing/not getting removed properly
+
+by replacing the time with sync, you can play multiple animations at once, specifcally one looping and non looping one
+
+Blush, eyes, ears, are exempt from from this. Eyes and ears already attempt to sync with the other layer
+
+Suggestions for ideas might be a fancy animation to roll around and play dead, then stay at the final keyframe using a second animation.
+Another idea is making a dramatic transition into a sitting or dancing animation
+
+premade layers are
+mouth (priority 2 preffered)
+eyesL(priority 2 preffered. includes eyebrow and pupil movement)
+eyesR(priority 2 preffered)
+browsL(priority 3 preffered)
+browsR(priority 3 preffered) (blink anims control brows at p2)
+earsL(priority 2 preffered)
+earsR(priority 2 preffered)
+wingsL(priority 2 preffered)
+wingR(priority 2 preffered)
+pupils (used to control eye wandering, priority 3. do not use)
+face(priority 3 preffered, intended for mouth,eyes,brows,pupils, ears)
+emote(priority 4 preffered)
+blush(textures the blush layer, special format)
+
+Blush uses the format of
+blush-<R,G,B>-UUIDHERE   
+blush-<1,0.3,0.3>-00000-0000-0000-000000
+
+Note that the RGB is is LSL color, not 255
+
+supports custom layers, as many as script memory will allow.
+Each layer added, adds its name + animation name to script memory.
+
+Active playing animations gets reset on attach to use the brows, eyes, ears, wings, and pupils, everything else is forgotten 
