@@ -16,3 +16,34 @@ IK/FK  controls if the IK is active for the legs. Turning it off will let you ju
 
 IKs in the horse are limited, for example the shoulders when you start rotating the horse or moving it far from the rest pose.
 You can control this by moving the Shoulder IK arrow. Keep in mind that it is part of the armature, and can be keyframed. 
+
+
+
+
+AO
+
+Standing represents the idle animations.
+Can add -(duration in secconds) to the end to control how long the idle lasts for, if time based cycling is on.
+Cycling is randomized.
+For example
+idle1-10, idlehello, idle4-12
+
+The idle 1 animation for 10 seconds
+The idlehello animation for the time you set in the dialog/popup
+The Idle4 animation will play for 12 seconds
+
+Average accuracy of the timing will be in 1 second intervals. This is to reduce overall lag caused checking each time per second. Can be adjusted in the hud by setting the internal time, under the gear dialog. Lower values causes more lag, higher values will slow down the responsiveness of other items in the script(probably)
+
+A single stand animation will always be required.
+If an animation is missing, it simply won't be used, so you can have mostly empty notecards.
+
+You can choose between random sits from the list inside the notecard, or a specific one, by clicking the gear
+
+AO has been made from scratch, so some features might be different to more common AOs.
+
+Prejumping, hard landing, and semi hard landing sometimes don't play properly, 
+This is a bug, and it appears as it can happen when used with other AOs.
+Unable to fix, if anyone knows how to, I will be interested in learning.
+
+Bug details/information:
+Animation appears to play 1 frame, then stop suddenly, meaning that the animation is technically still playing, but stopping prematurely. This was testing by replacing the 'idle' animation with an animation that only has 1 bone keyframed, making all the other bones hold the positon from the previous animation.  I also attempted to detect, and replace the 3 animations in question with llResetAnimationOverride and llSetAnimationOverride, to hopefully reduce multiple pre-jump animations not playing in a row.  This whole bug may be related to the animation itself rather the script
