@@ -1,0 +1,25 @@
+Code Info
+
+Chat channel is 20, following usual format of command|linkorname|face(accepts left and right)|data|moredata|so on
+
+Commands are string
+Links and Face are usually typecasted to integers
+Color is usually typecasted to vector (list2string then (vector), doing list2vector returns a <0,0,0>)
+boolean represents on or off
+type is diff, norm, or spec, representing texture type
+
+Commands that are usable
+coloreyes|link|face|color
+colormain|color
+colorcell|color
+eyeglow|number //between 0 and 1
+fullbright|eyes
+fullbright //sets the whole body
+alpha|link|face|boolean
+cleareyes|boolean // if true, reset alpha beldning only, false resets the eyes to transparent
+texture|body|face|type|uuid|color♦gloss♦env|scale|alpha|keepcolor//Keep color is optional
+getkey //returns the key of the mesh, using regionsayto on channel 20 to the owner.
+bakesonmesh|0|integer
+
+
+For bakesonmesh, 0 is a placeholder, integer is between 0 for off, 1 green layout, 2 for blue layout.
