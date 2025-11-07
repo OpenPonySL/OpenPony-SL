@@ -84,3 +84,34 @@ supports custom layers, as many as script memory will allow.
 Each layer added, adds its name + animation name to script memory.
 
 Active playing animations gets reset on attach to use the brows, eyes, ears, wings, and pupils, everything else is forgotten 
+
+
+
+New method to add custom emotes to Expressions HUD
+
+Uses the notecard to read data to apply a description + texture 
+
+This allows people to resell expressions/buttons easier
+
+The end user will need to first put the animation in question into the Expressions HUD. 
+After that, copy/paste the new lines inside a notecard the creator provides, into a new line of the notecard inside the Expressions HUD
+
+You may use these as a set of instructions inside a new notecard
+//Drag your animation inside the Expressions HUD
+//Now Copy and paste the following lines onto a new line of the notecard inside
+
+Description|TextureUUID
+
+
+Description follows the same format/system as the normal method
+⁠documentation-reference⁠
+
+Description|TextureUUID♥Description|TextureUUID
+
+♥, %%, @@ can be used as button seperators in order to make the notecard load faster/bulk buttons kits
+
+For example
+emote-littledance|b42f36cd-6b12-665d-7927-e1ec51b256f5 will make a new button, exactly like the dance in the emotes section
+
+emote-1-dance1second|TextureUUID will a dance animation that lasts 1 second, HOWEVER no texture will be applied 
+
