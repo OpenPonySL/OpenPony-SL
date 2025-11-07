@@ -1,0 +1,61 @@
+The facial IK has 3 bones
+The box rotation X controls the jaw
+Box Z rotation control lip corners
+Box Scale controls cheeks
+Box location controls how open/closed the entire mouth is
+
+Lip corners ALSO control
+Rotation X, lip corners
+Location, inbetween lips location
+
+
+Images for the expression hud will fit into 4:3 if you input a 1:1 ratio texture
+Recommend resolution for expressions is 128x128 or 256x256
+In order to copy the style filter, do these steps
+Enter Orthographic mode in blender
+If you want a white background, turn on visablity for 'picture orthoplane'
+Take a picture
+Open a program of your choice
+Open canvas of 128x128 or 256x256
+Paste picture
+Add a layer of solid white on top
+Set to 25% opacity
+Export as 128x128 or 256x256 
+
+
+Using .anim is recommended
+
+Hover is at priority 3
+Flying is at 4
+Flying and turning is at 5
+Prejump at 4
+Jumping at 3
+Stands/Idles at 3 (to override SL breathing. Ear+facial animations should be avoided to avoid conflict)
+Sitting at 3 (4 if youw ant to use pupils and COG)
+Sits inside chairs 4
+Tails at 2(Use 4 if you want to control Tail1)
+Face has referenced in an earlier post
+
+A quick way to convert a normal ground sit to a chair based one, would be to enter the graph editor, select the COG + any IK bones you used, and hide all the elements but Z Location
+
+Press g, then y, then press y, then type -0.4
+
+This will offset any animation you have 0.4 meter backwards, this includes all the keyframes. You may have to repeat for up/down as well
+
+For refence, sittingover mare 3 is 
+0.4 meters backward and
+meters below
+ from what it originally is
+
+Included in file has a box that represents the offset of where you sit while on a default cube rezzed in SL
+
+With this cube, we can assume the offset is around 
+0.475 meters behind, and 
+0.119 meters below
+
+TLDR;
+Use the included 'Sit Cube' for sits on chairs
+
+This will help standardize sit offsets
+
+If your spine/torso is turning in the opposite way you're flying, increase your animation priority. This can happen with falling, jumping, or flying animations 
