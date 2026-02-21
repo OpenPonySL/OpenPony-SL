@@ -1,0 +1,910 @@
+//contact nuzzy on discord if you got questions, it should mostly be plug and play though
+
+//if you edit and share this put your username/discord and a timestamp here somewhere so other people can ask you for help first
+
+
+//=============================================================
+//may contain schitzo notes and leftover code
+//some of this code is pretty old, made in 2021~
+//moooostly similiar to main body script
+integer bodymod;
+integer ListenID;
+integer ListenID2;
+integer magicnum = 20;
+key saved;
+key Owner;
+list alphalist;
+integer totalprocessed;
+//00torsolower, 01torsoupper, 02legleft, 03legright, 04armleft, 05armright, 06tail1 , 07tail2, 08head, 09mouthinner,10mouthteeth, 11mouthtounge, 12brows,13lashes, 14sclera, 15pupils1, 16pupils2, 17cutie, 18blush, 19ears
+//ear must always be last, incase it is removed
+//20torsolowercell, 21torsouppercell, 22legleftcell, 23legrightcell, 24armleftcell, 25armrightcell, 26tail1cell , 27tail2cell, 28headcell, 29mouthinnercell,30mouthteethcell, 31mouthtoungecell, 32browscell,33lashescell, 34scleracell, 35pupils1cell, 36pupils2cell, 37cutiecell, 38blushcell, 39earcell
+
+
+init()
+{
+    llListenRemove(ListenID);
+    llListenRemove(ListenID2);
+    if (saved == "" || saved == llGetOwner()) ListenID = llListen(magicnum - 4, "", NULL_KEY, "");
+    ListenID2 = llListen(magicnum, "", NULL_KEY, "");
+    Owner = llGetOwner();
+
+    if (saved == "")
+    {
+        integer i = llGetNumberOfPrims() + 1;
+        //llOwnerSay((string)llGetNumberOfPrims());
+        while (i--)
+        {
+            if (llGetNumberOfPrims() == 1) i = 0; //incase its a single link
+            string Desc = (string)llGetLinkPrimitiveParams(i, [PRIM_DESC]);
+            string first = llGetSubString(Desc, 0, 0);
+
+            if (first == "0" || first == "1" || first == "2" || first == "3")
+            {
+                bodymod = TRUE;
+                llSetLinkAlpha(i, 1, ALL_SIDES);
+                //
+                //jump nowbodymod;
+                //return;
+            }
+        }
+        //@nowbodymod;
+        if (!bodymod)
+            llOwnerSay("Assuming this will be a clothing mod");
+        else 
+            llOwnerSay("Body mod loaded.");
+    }
+    else
+    {
+        llRegionSayTo(Owner, magicnum, "echoversion");
+        //llSetLinkAlpha(LINK_SET, 1, ALL_SIDES);
+        llSetTimerEvent(8);
+    }
+
+    if (bodymod) 
+    {
+        llRegionSayTo(Owner, magicnum, "echosettings");
+    }
+}
+string realdirtydecrypter(string in )
+{
+    in = llDeleteSubString(in, 0, llStringLength("nemomalusfelix") - 1);
+    string magic = llStringToBase64(llGetDate() + "╢https://www.youtube.com/watch?v=dQw4w9WgXcQ╠" + (string) llGetOwner());
+
+    return llBase64ToString(llXorBase64(in, magic));
+}
+colorlinks(string type, vector color)
+{
+    integer applylink = llGetNumberOfPrims() + 1;
+    while (--applylink)
+    {
+        string Desc = (string)llGetLinkPrimitiveParams(applylink, [PRIM_DESC]);
+
+        if (type == "colormain" && !(~llSubStringIndex(Desc, "cell")))
+            llSetLinkColor(applylink, color, ALL_SIDES);
+        else if (type == "colorcell" && ~llSubStringIndex(Desc, "cell"))
+            llSetLinkColor(applylink, color, ALL_SIDES);
+    }
+}
+list getmirrors(string link, string input)
+{ //input link and leftright or a face, get faces
+    list faces;
+    integer left = ~llSubStringIndex(input, "left");
+    integer right = ~llSubStringIndex(input, "right");
+
+    if (!left && !right)
+        faces = [(integer) input];
+    else if (link == "00torsolower" || link == "19ears")
+    {
+        if (left) faces += [0, 1];
+        if (right) faces += [2, 3];
+    }
+    else if (link == "01torsoupper" || link == "15pupils1")
+    {
+        if (left) faces += [0, 1, 2, 3];
+        if (right) faces += [4, 5, 6, 7];
+    }
+    else if (link == "08head")
+    {
+        if (left) faces += [0, 3];
+        if (right) faces += [4, 7];
+    }
+    else if (link == "08headcell")
+    {
+        if (left) faces += [1, 2];
+        if (right) faces += [5, 6];
+    }
+    else if (link == "05armright" || link == "04armleft" || link == "02legleft" || link == "03legright" || link == "10mouthteeth" || link == "11mouthtounge")
+    {
+        faces += -1;
+    }
+    else if (link == "14sclera" || link == "13lashes" || link == "12brows" || link == "09mouthinner" || link == "06tail1" || link == "07tail2")
+    {
+        if (left) faces += 0;
+        if (right) faces += 1;
+    }
+    else if (link == "08headnostril")
+    {
+        if (left) faces += 2;
+        if (right) faces += 6;
+    }
+    else if (link == "08headlips")
+    {
+        if (left) faces += 1;
+        if (right) faces += 5;
+    }
+    else if (link == "16pupils2")
+    {
+        //6th layer is ignored
+        if (left) faces += 0;
+        if (right) faces += 2;
+    }
+    return faces;
+}
+applytexture(string link, string mirror, string Type, string Texture, string ExtraData, vector repeats, float alpha, integer keepcolor)
+{
+    //format texture|body|face|type|uuid|color♦gloss♦env|textscale|alpha
+    //llOwnerSay((string)keepcolor);
+    list buffer;
+    if (llGetSubString(link, -4, -1) == "cell") //not sure if substringindex is faster or not
+    { //returns if the linkdescription has cell
+        if (link != "08head") //exception for head
+            return;
+    }
+
+    list faces = getmirrors(link, mirror);
+
+
+    //llOwnerSay(link);
+    integer link = desctolink(link);
+
+    integer SetType = PRIM_TEXTURE;
+
+    if (Type == "spec") SetType = PRIM_SPECULAR;
+    else if (Type == "norm") SetType = PRIM_NORMAL;
+
+    list textchecklist = llParseString2List(Texture, ["-"], [""]);
+
+    if (~llSubStringIndex(Texture, "nemomalusfelix"))
+    {
+        Texture = realdirtydecrypter(Texture);
+        textchecklist = [];
+    }
+    else if (llList2String(textchecklist, 1) == "" && llGetInventoryType(Texture) == INVENTORY_NONE)
+    {
+        //llOwnerSay("Texture is not encrypted, uuid, or inventory:" + Texture);
+        Texture = NULL_KEY;
+    }
+
+
+    //llOwnerSay(Texture);
+    /*
+        if(Texture != NULL_KEY)
+        {
+            llOwnerSay("Error in input:"+Texture);
+        }
+    */
+    if (SetType == PRIM_SPECULAR)
+    { //vector color, int glossy, int envirn added. specular is special
+        list SpecData = llParseString2List(ExtraData, ["♦"], [""]);
+        vector scolor = (vector) llList2String(SpecData, 0);
+        integer gloss = (integer) llList2String(SpecData, 1);
+        integer envir = (integer) llList2String(SpecData, 2);
+
+
+
+        //list repeating = [Texture,repeats,<0,0,0>,0,scolor,gloss,envir]; //doesn't seem to save memory, leaving it incase of future
+
+        //ignores differences in faces/facecount
+        //llSetLinkPrimitiveParamsFast(link,[SetType,ALL_SIDES,Texture,repeats,<0,0,0>,ALL_SIDES,scolor,gloss,envir]); 
+
+        //old system, incompletely sets per face data, mainly ignores empty faces
+        //list buffer; // = [SetType,0,Texture,repeats,<0,0,0>,0,scolor,gloss,envir];
+        integer i;
+        for (i = 0; i < llGetListLength(faces); i++)
+        {
+            integer face = llList2Integer(faces, i);
+
+            //if(keepcolor) //safe to assume specular should always be colored
+            //    scolor = llList2Vector(llGetLinkPrimitiveParams(link,[PRIM_SPECULAR,face]),4);
+
+            buffer += [SetType, face, Texture, repeats, ZERO_VECTOR, 0, scolor, gloss, envir];
+            //llOwnerSay((string)face+(string)repeats);
+            //leaving it like this incase future wants to set spec data per face
+        }
+    }
+    else
+    {
+        vector color = (vector) ExtraData;
+
+
+        //list buffer; // = [SetType,0,Texture,repeats,<0,0,0>,0,PRIM_COLOR,0,color,alpha];
+        //llOwnerSay((string)llGetListLength(buffer));
+        integer i;
+        for (i = 0; i < llGetListLength(faces); i++)
+        {
+            integer face = llList2Integer(faces, i);
+
+            if (Texture == NULL_KEY && SetType == PRIM_TEXTURE)
+            { //setting only color if no texture sent
+                buffer += [PRIM_COLOR, face, color, alpha];
+            }
+            else
+            {
+                buffer += [SetType, face, Texture, repeats, ZERO_VECTOR, 0];
+                if (!keepcolor) buffer += [PRIM_COLOR, face, color, alpha];
+            }
+            //else
+            //llOwnerSay((string)llGetListLength(buffer));
+        }
+        //llSetLinkPrimitiveParamsFast(link, buffer);
+
+    }
+
+    llSetLinkPrimitiveParamsFast(link, buffer);
+}
+
+setbom(integer type)
+{ // main body works different from this function since all links are saved to memory
+//might be possible to minmax this funciton if you use a lookup table?
+    if (!bodymod) return;
+    string Texture;
+    list buffer;
+
+    integer applylink = llGetNumberOfPrims() + 1;
+    //integer alphamode = 1;
+    integer masknum = 100;
+    list textureendparams = [ < 1.0, 1.0, 0.0 > , ZERO_VECTOR, 0.0]; //
+
+
+
+    while (applylink--)
+    {
+        //if (llGetNumberOfPrims() == 1) applylink = 0;
+        string Desc = (string)llGetLinkPrimitiveParams(applylink, [PRIM_DESC]);
+        string first = llGetSubString(Desc, 0, 0);
+        string number = llGetSubString(Desc, 0, 1);
+        integer numberint = (integer)number;
+        integer offset;
+        integer facecount;
+
+        if (type == 0)
+        { //normally only applied up to body part 09, making it ignore ears(has a different script to make it work), face stuff, and cell shades
+            //llOwnerSay((string)((integer)number));
+            // llOwnerSay((string)(number));
+            if (numberint <= 8)
+                buffer += [PRIM_LINK_TARGET, applylink, PRIM_TEXTURE, ALL_SIDES, TEXTURE_BLANK, < 1.0, 1.0, 0.0 > , ZERO_VECTOR, 0.0];
+        }
+        else if (numberint <= 39)//(first == "0" || first == "1" || first == "2" || first == "3")
+        { //apply a bom to something that also has a number in first letter of description
+
+            string mirrorbom;
+
+            if (number == "00")
+            {
+                Texture = IMG_USE_BAKED_UPPER;
+                mirrorbom = IMG_USE_BAKED_LOWER;
+
+                facecount = 2;
+                offset = 1;
+            }
+            else if (numberint == 1 || numberint == 6 || numberint == 7)
+            { //uppertorso
+                Texture = IMG_USE_BAKED_UPPER;
+                mirrorbom = IMG_USE_BAKED_LOWER;
+
+                if (numberint == 1)
+                {
+                    facecount = 4;
+                    offset = 3;
+                }
+                else // if (number == "06" || number == "07")
+                {
+                    facecount = 1;
+                    offset = 0;
+                }
+            }
+            else if (numberint == 8)
+            { //head
+                if (type == 1)
+                {
+                    Texture = IMG_USE_BAKED_AUX3;
+                    mirrorbom = IMG_USE_BAKED_HEAD;
+                }
+                else if (type == 2)
+                {
+                    Texture = IMG_USE_BAKED_UPPER;
+                    mirrorbom = IMG_USE_BAKED_LOWER;
+                }
+
+                facecount = 4;
+                offset = 3;
+            }
+            //----------------------------
+            else if (numberint == 2)
+            { //legs
+                if (type == 1) mirrorbom = IMG_USE_BAKED_AUX1;
+                else if (type == 2) mirrorbom = IMG_USE_BAKED_UPPER;
+            }
+            else if (numberint == 3)
+            { //legs
+                if (type == 1) mirrorbom = IMG_USE_BAKED_LEFTLEG;
+                else if (type == 2) mirrorbom = IMG_USE_BAKED_LOWER;
+            }
+            //----------------------------
+            else if (numberint == 4)
+            { //arms
+                if (type == 1) mirrorbom = IMG_USE_BAKED_LEFTARM;
+                else if (type == 2) mirrorbom = IMG_USE_BAKED_LOWER;
+            }
+            else if (numberint == 5)
+            { //arms
+                if (type == 1) mirrorbom = IMG_USE_BAKED_AUX2;
+                else if (type == 2) mirrorbom = IMG_USE_BAKED_UPPER;
+            }
+            //----------------------------
+            /*//removed for now
+            else if(index == link9 || index == link10 || index == link11)
+            {//mouth
+                if(index == link9)
+                {
+                    Texture = IMG_USE_BAKED_AUX3;
+                    facecount = 1;
+                }
+                else
+                    Texture = IMG_USE_BAKED_HEAD;
+                
+                mirrorbom = IMG_USE_BAKED_HEAD;
+                masknum = 0;
+            }
+            //----------------------------                                
+             */
+
+            //first apply the mirror side to both sides
+            if (mirrorbom) buffer += [PRIM_LINK_TARGET, applylink, PRIM_TEXTURE, ALL_SIDES, mirrorbom] + textureendparams;
+
+            if (Texture)
+            { //then apply the other side to each face
+                while (facecount)
+                {
+                    buffer += [PRIM_LINK_TARGET, applylink, PRIM_TEXTURE, facecount + offset, Texture] + textureendparams;
+                    facecount--;
+                }
+            }
+        }
+        //}
+        //=============================== end of type 1
+    }
+    llSetLinkPrimitiveParamsFast(LINK_THIS, buffer);
+    //}
+    //finally apply
+
+
+}
+//debated using bitwise 100010 vs 1,3,4,5
+//format color|body|1001010|color
+//format color|body|faces♣faces♣faces|color
+
+integer desctolink(string find)
+{ //returns first close enough matching instance
+    //main body script uses a different function that saves each link to memory instead
+    integer i = llGetNumberOfPrims() + 1;
+
+    while (i--)
+    {
+        string Desc = (string)llGetLinkPrimitiveParams(i, [PRIM_DESC]);
+
+        if (~llSubStringIndex(Desc, find)) return i;
+    }
+
+    return -20;
+}
+
+list modlinks(string direction)
+{ //returns first close enough matching instance
+    //main body script uses a different function
+    integer i = llGetNumberOfPrims() + 1;
+    list mods;
+
+    while (i--)
+    {
+        string Desc = (string)llGetLinkPrimitiveParams(i, [PRIM_DESC]);
+        string first = llGetSubString(Desc, 0, 1);
+        integer probablybody = (integer) first < 40;
+
+        if (direction == "left" || direction == "right")
+        { //mostly for legs ands ears 
+            if ((integer) first < 40 && ~llSubStringIndex(first, direction)) mods += i;
+        }
+        else
+        {
+            if (first == "00") mods += i;
+
+            if (direction == "middle" && probablybody)
+            {
+                if ((llSubStringIndex(first, "right") + llSubStringIndex(first, "left")) == -2)
+                    mods += i;
+            }
+            else if (probablybody)
+            {
+                mods += i;
+            }
+        }
+    }
+
+    return mods;
+    //return -20;
+}
+
+default
+{
+    state_entry()
+    {
+        //llOwnerSay((string)llGetFreeMemory());
+        init();
+    }
+
+    listen(integer channel, string name, key id, string mess)
+    {
+        //llOwnerSay(mess);
+        if (llGetOwnerKey(id) != Owner) return;
+        //body script uses firestorm's pre processor buts its a lie for optimization list[number] just becomes llList2String
+        //switch cases jusut becomes jumps
+        list message = llParseString2List(mess, ["|"], []);
+        string command = llList2String(message, 0); //llList2String();
+        string linkdesc = llList2String(message, 1);
+        integer link = desctolink(linkdesc); //most setparams commands only support 1 at a time        
+        integer face = llList2Integer(message, 2); //sometimes re-used as a boolean
+        string data = llList2String(message, 3);
+
+        //if(link == -20) return;
+
+        list params;
+
+        if (channel == magicnum - 4)
+        { //alpha hud loading
+            //llOwnerSay(mess);
+            if (command == "alpha")
+            { //now stored as [bodypart,face*face*face,bodypart,face*face*face]
+                //mess = llGetSubString(mess, 6, -3);//trim the last number because tis not needed
+                //mess = llDeleteSubString(mess, 0, 5);//trim the last number because tis not needed
+                string bodypart = llList2String(message, 1);
+                bodypart = "lk" + llGetSubString(bodypart, 0, 1);
+                string face = llList2String(message, 2);
+                integer entry = llListFindList(alphalist, [bodypart]);
+                if (~entry)
+                {
+                    string newfaces = llList2String(alphalist, entry + 1) + "*" + face;
+                    alphalist = llListReplaceList(alphalist, [newfaces], entry + 1, entry + 1);
+                }//might eventually hit a wall with memory but its tolerable since this is amod and linksetdata should be used for the creator
+                else
+                    alphalist += [bodypart, face];
+
+                totalprocessed++;
+            }
+            else if (command == "inituploadalpha")
+            {
+                llOwnerSay("Processing auto alphas");
+                alphalist = [];
+                saved = "";
+                totalprocessed = 0;
+            }
+            else if (command == "uploadalphaend")
+            {
+                saved = llGetOwner();
+                llOwnerSay("[" + (string) totalprocessed + "] Alphas saved (includes misc). \nListen will be removed when owner or linkset has changed. Reset the script manually if you need to restart the listen handle after this.");
+                llRegionSayTo(Owner, magicnum - 4, "alphadone");
+                //llSetLinkAlpha(LINK_SET, 1, ALL_SIDES);
+                //llOwnerSay(llDumpList2String(alphalist,"\n"));
+            }
+        }
+        else // if (bodymod)
+        {
+            if (command == "pingautoalpha")
+            { //sends a staggered request to wait in line to apply alphas (probably not needed) 
+                llRegionSayTo(id, magicnum, "alphapingreply");
+                llSleep(llFrand(0.5)); //attempt to stagger replies
+            }
+            else if (command == "replyversion" || command == "requestautoalpha")
+            {
+                //throw the list
+                integer i;
+                integer count = llGetListLength(alphalist);
+
+                string message = "addalpha";
+                if (bodymod) message += "|addmod";
+
+                //message += ;
+
+                while (i < count)
+                {
+                    if (i != 0) message += "*";
+                    else message += "|";
+                    message += llList2String(alphalist, i); //link
+                    message += "*" + llList2String(alphalist, i + 1); //face*face*face
+
+                    i += 2;
+                }
+                //llOwnerSay(message);
+                llSetTimerEvent(0);
+                llRegionSayTo(Owner, magicnum, message);
+            }
+
+
+            if (!bodymod) return;
+
+
+            if (command == "alphamode")
+            {
+                list mirrors = getmirrors(llList2String(message, 1), llList2String(message, 2));
+
+
+                integer alphatype = llList2Integer(message, 3);
+                integer cutoff = llList2Integer(message, 4);
+
+                integer i;
+                for (i = 0; i < llGetListLength(mirrors); i++)
+                {
+                    face = llList2Integer(mirrors, i);
+
+                    params += [PRIM_ALPHA_MODE, face, alphatype, cutoff];
+                }
+                //llOwnerSay((string)params);
+            }
+            else if (command == "colorpart")
+            { //not meant to be spammed for each link
+                //colorpart|link|face|color|alpha
+                string face = llList2String(message, 2);
+                vector color = (vector) llList2String(message, 3);
+                float alpha = llList2Float(message, 4);
+
+                list params = [PRIM_COLOR, face, color, alpha];
+
+
+                llSetLinkPrimitiveParamsFast(link, params);
+            }
+            else if (command == "gltf")
+            { //gltf|link|face|type|data
+                //data can be diff, norm, meta, emmi, mat
+                // /20 gltf|01torsoupper|-1|mat|uuid
+                // /20 gltf|01torsoupper|-1|diff|uuid|""|""|0|<1,1,1>|0|""|""|1
+                // /20 gltf|01torsoupper|-1|emmis|uuid|""|""|0|<1,1,1>
+                // /20 gltf|01torsoupper|-1|metal|uuid|""|""|0|""|""
+                // /20 gltf|01torsoupper|-1|norm|uuid|""|""|0
+
+                //--integer face,--     string texture, vector repeats, vector offsets, float rotation_in_radians
+                list parseddata = [face] + llList2List(message, 4, -1);
+                //integer face = llList2Integer(parseddata,1);
+                list params = [face, "", "", "", ""]; // common part for each gltf
+                integer expectedsize = 5;
+                integer totalsize = llGetListLength(parseddata);
+
+                if (data == "mat")
+                {
+                    params = [PRIM_RENDER_MATERIAL, face] + llList2String(message, 4); //list2 outside to hopefully save memory?
+                    jump skipgltf;
+                }
+                else if (data == "diff")
+                {
+                    params = [PRIM_GLTF_BASE_COLOR] + params;
+                    //vector linear_color, float alpha, integer gltf_alpha_mode, float alpha_mask_cutoff, integer double_sided
+                    params += ["", "", "", "", ""];
+                    expectedsize += 5;
+                }
+                else if (data == "emmis")
+                {
+                    params = [PRIM_GLTF_EMISSIVE] + params;
+                    //vector linear_emissive_tint
+                    params += [""];
+                    expectedsize += 1;
+                }
+                else if (data == "metal")
+                {
+                    params = [PRIM_GLTF_METALLIC_ROUGHNESS] + params;
+                    //float metallic_factor, float roughness_factor
+                    params += ["", ""];
+                    expectedsize += 2;
+                }
+                else if (data == "norm")
+                {
+                    params = [PRIM_GLTF_NORMAL] + params;
+                    //normal doesn't have anything
+                }
+                //now that we generated do not override list, we can edit single gltf fields, as much as default SL lets us 
+                // will need to typecast everything though so thats annoying
+                //llOwnerSay("dumping\n" + llDumpList2String(params,"\n"));
+
+                if (totalsize != expectedsize) //face is already accounted for
+                { //just in case check
+                    llOwnerSay("GLTF fields too long/short!\nFound : " + (string) llGetListLength(parseddata) + "\nExpected : " + (string) expectedsize);
+                    return;
+                }
+
+
+
+                while (expectedsize--)
+                {
+                    //expectedsize--; 
+                    //llOwnerSay((string)expectedsize);
+                    string entry = llList2String(parseddata, expectedsize);
+                    integer assignindex = expectedsize + 1;
+                    //llOwnerSay("gltf process == "+entry + " esize "+(string)expectedsize);
+
+                    if (entry != "" && entry != "\"\"")
+                    { //---string texture, vector repeats, vector offsets, float rotation_in_radians
+                        //0 is already the face
+                        if (expectedsize == 7 || expectedsize == 9) //alphamode,doublesided
+                            params = llListReplaceList(params, [(integer) entry], assignindex, assignindex);
+
+                        else if (expectedsize == 1) //texture
+                            params = llListReplaceList(params, [entry], assignindex, assignindex);
+
+                        else if (expectedsize == 2 || expectedsize == 3) //repeats,offsets
+                            params = llListReplaceList(params, [(vector) entry], assignindex, assignindex);
+
+                        else if (expectedsize == 4 || expectedsize == 6 || expectedsize == 8) //rotation,rough/alpha,mask
+                            params = llListReplaceList(params, [(float) entry], assignindex, assignindex);
+
+                        else if (expectedsize == 5 && data == "metal") //vec/float
+                            params = llListReplaceList(params, [(float) entry], assignindex, assignindex);
+
+                        else if (expectedsize == 5) //vec/float
+                            params = llListReplaceList(params, [(vector) entry], assignindex, assignindex);
+
+
+                        ////vec/float, float, int, float, int
+                    }
+                }
+                //params 
+                //list parseddata = llParseString2List(llList2String(message,4),["|"],[]);
+
+                //params = llListReplaceList(params,parseddata,,)
+                //llOwnerSay("dumping\n" + llDumpList2String(params,"\n"));
+                @skipgltf;
+
+                llSetLinkPrimitiveParamsFast(link, params);
+                llRegionSayTo(id, magicnum, "finished gltf on |" + linkdesc + "|" + (string) face);
+            }
+            else if (command == "alphacustom")
+            { //format alpha|link|face|1 or 0
+                //llOwnerSay((string)link);
+                //if(saved == "") return;
+
+                //string linkdesc = llList2String(message, 1);
+                if(llGetSubString(linkdesc, 0, 1) == "lk") 
+                    linkdesc = llGetSubString(linkdesc, 2, -1);
+                
+                link = desctolink(linkdesc);
+
+                //llOwnerSay((string)link);
+                if (link == -20) return;
+
+                face = llList2Integer(message, 2);
+                //body technically only supports 1 or 0 for alpha
+                //llOwnerSay((string)((float)data) + " settomg");
+
+                llSetLinkAlpha(link, (float) data, face);
+            }
+            else if (command == "echotexture" || command == "echogltf")
+            { //uses a different handler since data is already sorted close enough
+                //echogltf|type|direction|data
+                ////main body doesn't has this command but can send it AFTER someone has applied a texture post v1.7
+
+                //string direction = llList2String();
+                string type = llList2String(message, 1);
+                string direction = llList2String(message, 2);
+                list data = llList2List(message, 3, -1);
+
+                list bodylinks;
+
+                if (direction == "left") bodylinks = modlinks("");
+                else bodylinks = modlinks("right");
+
+                integer paramcommand = llList2Integer(data, 0);
+                integer datalength = llGetListLength(data); //to verify no extra crap is in it
+                data = llListReplaceList(data, [paramcommand, -1], 0, 1); //replace face
+
+
+                integer totallinks = llGetListLength(bodylinks);
+
+
+                //llOwnerSay("echoinh texture for links "+ (string) totallinks+ " -- "+ llList2String(data,2));
+                integer candoit = 0;
+                //blinn
+                if ((paramcommand == PRIM_TEXTURE || paramcommand == PRIM_NORMAL) && datalength == 6)
+                    candoit = 1;
+                else if (paramcommand == PRIM_SPECULAR && datalength == 9)
+                    candoit = 1;
+                //pbr
+                else if (paramcommand == PRIM_RENDER_MATERIAL && datalength == 3)
+                    candoit = 1;
+                else if (paramcommand == PRIM_GLTF_BASE_COLOR && datalength == 11)
+                    candoit = 1;
+                else if (paramcommand == PRIM_GLTF_EMISSIVE && datalength == 7)
+                    candoit = 1;
+                else if (paramcommand == PRIM_GLTF_METALLIC_ROUGHNESS && datalength == 8)
+                    candoit = 1;
+                else if (paramcommand == PRIM_GLTF_NORMAL && datalength == 6)
+                    candoit = 1;
+                else
+                {
+                    llOwnerSay("datalength did not match " + (string) datalength + " for command " + (string) paramcommand);
+                }
+                
+                
+                if (candoit)
+                {
+                    integer expectedsize = datalength;
+                    while (expectedsize--)
+                    { //now we painfully convert everything from string to desired type
+                        //expectedsize--; 
+                        //llOwnerSay((string)expectedsize);
+                        string entry = llList2String(data, expectedsize);
+                        integer assignindex = expectedsize; //already included face
+                        //llOwnerSay("gltf process == "+entry + " esize "+(string)expectedsize);
+
+                        //texture common processing
+                        if (entry == "") //gltf empty
+                        {
+                            data = llListReplaceList(data, [""], assignindex, assignindex);
+                        }
+                        else
+                        { //common data
+                            if (expectedsize == 2)
+                                data = llListReplaceList(data, [entry], assignindex, assignindex);
+
+                            else if (expectedsize == 3 || expectedsize == 4)
+                                data = llListReplaceList(data, [(vector) entry], assignindex, assignindex);
+
+                            else if (expectedsize == 5)
+                                data = llListReplaceList(data, [(float) entry], assignindex, assignindex);
+                        }
+
+                        if (paramcommand == PRIM_SPECULAR)
+                        {
+                            if (expectedsize == 6)
+                                data = llListReplaceList(data, [(vector) entry], assignindex, assignindex);
+                            else if (expectedsize == 7)
+                                data = llListReplaceList(data, [(integer) entry], assignindex, assignindex);
+                            else if (expectedsize == 8)
+                                data = llListReplaceList(data, [(integer) entry], assignindex, assignindex);
+                        }
+                        else
+                        { //gltf processing
+                            if (expectedsize == 8 || expectedsize == 10) //alphamode,doublesided
+                                data = llListReplaceList(data, [(integer) entry], assignindex, assignindex);
+
+                            else if (expectedsize == 7 || expectedsize == 9) //rotation,rough/alpha,mask
+                                data = llListReplaceList(data, [(float) entry], assignindex, assignindex);
+
+                            else if (expectedsize == 6 && paramcommand == PRIM_GLTF_METALLIC_ROUGHNESS) //vec/float
+                                data = llListReplaceList(data, [(float) entry], assignindex, assignindex);
+
+                            else if (expectedsize == 6) //vec/float
+                                data = llListReplaceList(data, [(vector) entry], assignindex, assignindex);
+                        }
+                    }
+
+                    while (totallinks--)
+                    {
+                        integer link = llList2Integer(bodylinks, totallinks);
+                        //probalby coulda used this method instead of verifying each command in a custom format in hindsight (few years ago)
+                        llSetLinkPrimitiveParamsFast(link, data);
+                        //llOwnerSay("body texture transfer success");
+                    }
+                }
+            }
+            else if (command == "texture")
+            {
+                if (link == -20)
+                    return;
+
+                //string link = llList2String(message, 1); //recasts it because mirrors need to be discovered in applytex function
+                string face = llList2String(message, 2);
+                //data is type
+                string uuid = llList2String(message, 4);
+                string extradata = llList2String(message, 5);
+                vector repeats = (vector) llList2String(message, 6);
+                float alpha = (float) llList2String(message, 7);
+                integer keepcolor = (integer) llList2String(message, 8);
+
+
+
+                applytexture(linkdesc, face, data, uuid, extradata, repeats, alpha, keepcolor);
+            }
+            else if (command == "fullbright")
+            {
+                params = [PRIM_LINK_TARGET, LINK_SET, PRIM_FULLBRIGHT, ALL_SIDES, face];
+            }
+            else if (command == "colormain" || command == "colorcell")
+            { //different and slower from main body
+                vector color = (vector) linkdesc;
+
+                colorlinks(command, color);
+            }
+            else if (command == "textureanim")
+            {
+                integer mode = llList2Integer(message, 2);
+                integer face = llList2Integer(message, 3);
+
+                integer sizex = llList2Integer(message, 4);
+                integer sizey = llList2Integer(message, 5);
+
+                float start = llList2Float(message, 6);
+                float length = llList2Float(message, 7);
+                float rate = llList2Float(message, 8);
+
+
+                if (link == -20) return;
+
+                llSetLinkTextureAnim(link, mode, face, sizex, sizey, start, length, rate);
+            }
+            else if (command == "bakesonmesh")
+            {
+                setbom(face); //face is reused as a integer
+            }
+        }
+
+        if (params) llSetLinkPrimitiveParamsFast(link, params);
+    }
+    attach(key id)
+    {
+        if (id != NULL_KEY)
+        {
+
+        }
+        else
+        { //being detatched
+
+            //throw the list
+            //this is mostly to prevent duplicate attach events on spamming add/remove
+            state clearqueue;
+            /*//prooooobaly doesn't need this anymore
+            integer count = llGetListLength(alphalist);
+
+            while(count--)
+            {//attempt to manually update the alpha entries if it still can
+                llRegionSayTo(Owner,magicnum,(string)alphalist[count]+"1");
+                //llSleep(0.08);
+            }
+            */
+        }
+    }
+    timer()
+    {
+        if(bodymod)
+            llOwnerSay("You need to update your pony to use the the new auto alpha/mod system. Please get an update at any caspervend redelivery terminal.");
+        llSetTimerEvent(0);
+        
+    }
+    changed(integer change)
+    {
+        if (change & CHANGED_OWNER)
+        {
+            state clearqueue;
+        }
+        if (change & CHANGED_LINK)
+        {
+            state clearqueue;
+        }
+    }
+}
+
+state clearqueue //prevents duplicate attach events spamming
+{
+    state_entry()
+    {
+        llRegionSayTo(Owner, magicnum, "updatealpha|" + (string) Owner);
+    }
+    attach(key id)
+    {
+        if (id != NULL_KEY)
+        {
+            //if(saved) state default;
+            if (!bodymod && saved == "")
+                llResetScript();
+
+            state
+            default;
+        }
+    }
+}
