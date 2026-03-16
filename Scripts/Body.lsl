@@ -2578,7 +2578,7 @@ default
 
                 llOwnerSay("Found " + (string) totaldupes + " duplicates, removing...");
                 //llOwnerSay("Potential duplicates found: "+llDumpList2String(duplicates,"|")+". Attempting removal...");
-                //llMessageLinked(link8, 0, llDumpList2String(duplicates, "↕↕"), "prepmove");
+                llMessageLinked(link8, 0, llDumpList2String(duplicates, "↕↕"), "prepmove");
                 linkreply = llDumpList2String(duplicates, "↕↕");
             }
             // else
